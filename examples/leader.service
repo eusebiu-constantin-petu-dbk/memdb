@@ -1,0 +1,10 @@
+[Unit]
+Description=Leader Service
+After=network.target
+
+[Service]
+ExecStart=/path/to/leader <port> <replica1> <replica2> <replica3>
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

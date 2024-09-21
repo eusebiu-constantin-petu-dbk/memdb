@@ -1,0 +1,26 @@
+# Stage 1: Build the Go app
+FROM golang:1.23-alpine AS builder
+
+WORKDIR /app
+
+COPY go.mod .
+COPY go.sum .
+
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+RUN go mod download
+
+COPY . .
+
+RUN go build -o replica ./cmd/replica
+
+FROM alpine:latest
+
+WORKDIR /
+
+COPY --from=builder /app/replica .
+
+EXPOSE 8081
+
+ENTRYPOINT ["/replica"]
+
+CMD ["8081", "http://localhost:8080"]

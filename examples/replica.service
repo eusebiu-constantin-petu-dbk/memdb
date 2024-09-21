@@ -1,0 +1,11 @@
+[Unit]
+Description=Replica 1 Service
+After=network.target leader.service
+Requires=leader.service
+
+[Service]
+ExecStart=/path/to/replica <port> <leader_url>
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

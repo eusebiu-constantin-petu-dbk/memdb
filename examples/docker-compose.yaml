@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  leader:
+    command:
+      # - ./leader
+      - "8080"
+      - http://replica:8081
+    build:
+      context: .
+      dockerfile: Dockerfile.leader
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: curl -f http://localhost:8080/health || exit 1
+      interval: 5s
+      timeout: 60s
+      retries: 10
+      start_period: 30s
+    networks:
+      - backend
+    restart: always
+
+  replica:
+    command:
+      # - ./replica
+      - "8081"
+      - http://leader:8080
+    build:
+      context: .
+      dockerfile: Dockerfile.replica
+    ports:
+      - "8081:8081"
+    depends_on:
+      leader:
+        condition: service_started
+    healthcheck:
+      test: curl -f http://localhost:8081/health || exit 1
+      interval: 5s
+      timeout: 60s
+      retries: 10
+      start_period: 30s
+    networks:
+      - backend
+    restart: always
+
+networks:
+  backend:
